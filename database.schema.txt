@@ -1,0 +1,4 @@
+CREATE TABLE butikker (
+    id INTEGER PRIMARY KEY,
+    navn TEXT NOT NULL
+);

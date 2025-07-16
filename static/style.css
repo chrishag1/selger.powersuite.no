@@ -1,0 +1,138 @@
+/* Felles */
+.bakgrunn {
+    background-color: #f8f9fa;
+    height: 100vh;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+.orange-tekst {
+  color: #FF6600;
+}
+
+.orange-bakgrunn {
+  background-color: #FF6600;
+}
+
+.orange-outline {
+  border-color: #FF6600;
+}
+
+.orange-aktiv{
+    color: #FF6600;
+}
+
+
+/* / index siden */
+.produktkort {
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.produktkort .produktbilde {
+  transition: transform 0.3s ease;
+}
+
+.produktkort .salgsargumenter {
+  transition: opacity 0.3s ease, max-height 0.3s ease;
+  overflow: hidden;
+  max-height: 100px;
+  opacity: 1;
+}
+
+.produktkort:hover .produktbilde {
+  transform: scale(1.1);
+}
+
+.produktkort:hover .salgsargumenter {
+  opacity: 0;
+  max-height: 0;
+  margin: 0;
+  padding: 0;
+}
+
+/* Øk høyde og font på Select2-knappen */
+.select2-container--default .select2-selection--single {
+    height: 40px; /* endre til ønsket høyde */
+    width: 200px;
+    padding: 10px 12px;
+    font-size: 1.3rem; /* evt. juster for større tekst */
+    display: flex;
+    align-items: center; /* sentrerer tekst vertikalt */
+    justify-content: center; /* sentrerer tekst horisontalt */
+    border-radius: 6px;  /* valgfritt, rundere hjørner */
+    font-weight: bold;
+}
+
+
+
+/* /Mobil siden*/
+.tilgjengelighet-sirkel {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+}
+
+/* Fargekoder for tilgjengelighet */
+.bg-gronn { background-color: #28a745 !important; color: black !important;}
+.bg-bla   { background-color: #007bff !important; color: black !important;}
+.bg-gul   { background-color: #ffc107 !important; color: black !important; }
+.bg-rod   { background-color: #dc3545 !important; color: black !important;}
+
+/* Fargestatus-sirkel i knapper */
+.badge.rounded-circle {
+  border-radius: 50% !important;
+  width: 18px;
+  height: 18px;
+  font-size: 0.65rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: uppercase;
+}
+
+/* Fjern understrek og behold arvestil for farge */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Justering for Power-knappen */
+.power-knapp {
+  font-size: 1.5rem;
+  font-weight: bold;
+  cursor: pointer;
+  background-color: #FF6600;
+  color: black;
+  border: none;
+}
+
+.fargekort{
+    position: relative;
+    width: 100px;
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    font-weight: bold;
+    border: 1px solid #ccc;
+}
+
+/* Mobilvennlig bilde */
+.fargekort img, .produkt-bilde {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+}
+
+/* Aktiv fargekortstil */
+.fargekort.aktiv-farge {
+  border: 2px solid #FF6600;
+}
+
+/* Hover-effekt for fargekort */
+.fargekort:hover {
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
+  transition: box-shadow 0.2s ease-in-out;
+}

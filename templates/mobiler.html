@@ -1,0 +1,108 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    {{ hoved_produkt['navn'] }}
+{% endblock %}
+
+{% block main %}
+<div class="container py-4 bakgrunn">
+  <!-- Fullbredde tittel -->
+  <h1 class="mb-4 fw-bold">{{ hoved_produkt['navn'] }}</h1>
+
+  <!-- To kolonner -->
+  <div class="row g-4">
+    <!-- Venstre kolonne -->
+    <div class="col-md-6">
+      <p class="text-muted mb-2">Produkt-ID: {{ hoved_produkt['id'] }}</p>
+      <div class="text-center">
+        <img src="{{ hoved_produkt['bilde'] }}" alt="{{ hoved_produkt['navn'] }}" class="img-fluid rounded">
+      </div>
+    </div>
+
+    <!-- Høyre kolonne -->
+    <div class="col-md-6">
+      <p class="fw-semibold mb-2">Rating: {{ hoved_produkt['rating'] }}/5 ⭐</p>
+
+      <ul class="mb-4 ps-3">
+        {% for punkt in hoved_produkt['salgsargument'].split('\n') %}
+          <li>{{ punkt }}</li>
+        {% endfor %}
+      </ul>
+
+      <!-- Fargevalg -->
+      <h5 class="mb-2">Velg farge:</h5>
+      <div class="d-flex flex-wrap gap-3 mb-4">
+        {% for produkt in andre_farger %}
+          {% set tilgjengelighet = produkt['tilgjengelighet'] %}
+          {% set farge = (
+              'gronn' if tilgjengelighet == butikk_id else
+              'bla' if tilgjengelighet == 9700 else
+              'gul' if tilgjengelighet == 9900 else
+              'rod'
+          ) %}
+            {% set farge = "bla" if tilgjengelighet == butikk_id == 9700 else farge%}
+          <a href="/mobiler?produkt={{ produkt['id'] }}&butikk={{ valgt_butikk }}" class="text-decoration-none text-dark">
+            {% set farge_kort = "fargekort aktiv-farge" if produkt['id'] == hoved_produkt['id'] else "fargekort" %}
+            <div class="{{ farge_kort }} text-center shadow-sm">
+              <div class="tilgjengelighet-sirkel bg-{{ farge }}"></div>
+              <img src="{{ produkt['bilde'] }}" alt="{{ produkt['navn'] }}" class="img-fluid" loading="lazy">
+              <p class="mt-1 mb-0 small">{{ produkt['farge'] }}</p>
+            </div>
+          </a>
+        {% endfor %}
+      </div>
+
+      <!-- Lagring -->
+      <h5 class="mb-2">Velg lagring:</h5>
+      <div class="d-flex flex-wrap gap-2">
+        {% set alle_lagringer = annen_lagringsplass.keys() | list %}
+        {% set hoved_lagring = hoved_produkt['lagring'] %}
+        {% set alle_lagringer = (alle_lagringer + [hoved_lagring]) | map('int') | list | sort %}
+
+        {% for lagring in alle_lagringer %}
+          {% set er_valgt = (lagring == hoved_lagring|int) %}
+          {% set produkter = annen_lagringsplass[lagring|string] if annen_lagringsplass[lagring|string] is defined else [] %}
+          {% set hoved_farge_finnes = true if lagring in hoved_produkt_lagringer.keys() else false %}
+
+          {% if hoved_farge_finnes %}
+            <a href="/mobiler?produkt={{ hoved_produkt_lagringer[lagring] }}&butikk={{ valgt_butikk }}" class="text-decoration-none">
+              <button class="btn {% if er_valgt %}btn-dark{% else %}btn-outline-dark{% endif %} position-relative">
+                {{ lagring }} GB
+                {% if produkter %}
+                <div class="d-flex flex-wrap gap-1 justify-content-center mt-1">
+                  {% for produkt in produkter %}
+                    {% set tilgjengelighet = produkt['tilgjengelighet'] %}
+                    {% set status = (
+                      'gronn' if tilgjengelighet == butikk_id else
+                      'bla' if tilgjengelighet == 9700 else
+                      'gul' if tilgjengelighet == 9900 else
+                      'rod'
+                    ) %}
+                      {% set status = "bla" if tilgjengelighet == butikk_id == 9700 else status%}
+                    <span class="badge rounded-circle bg-{{ status }} text-uppercase" style="width: 18px; height: 18px; font-size: 0.65rem; display: flex; align-items: center; justify-content: center;">
+                      {{ produkt['farge'][0] if produkt['farge'] is defined else produkt['navn'][0] }}
+                    </span>
+                  {% endfor %}
+                </div>
+                {% endif %}
+              </button>
+            </a>
+          {% else %}
+            <button class="btn btn-secondary text-muted" disabled>{{ lagring }} GB</button>
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      <div class="mt-4">
+        <span class="fs-2 fw-bold orange-tekst">{{ hoved_produkt['pris'] }} kr</span>
+      </div>
+
+      <a href="https://www.power.no/mobil-og-foto/mobiltelefon/{{ hoved_produkt['navn'].lower().replace(',', '').replace(' ', '-') }}/p-{{ hoved_produkt['id'] }}" target="_blank">
+        <div class="mt-4 orange-bakgrunn rounded text-center py-3">
+          <button class="btn orange-bakgrunn fw-bold fs-5 border-0">Se produktet på Power.no</button>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}
