@@ -57,7 +57,7 @@ def hent_nettlager_produkt_liste(query, cat=2015, start_index=0):
     return svar
 
 
-def finn_produkt_liste_info(produkt_dict):
+def finn_produkt_info(produkt_dict):
     return {
         "navn": produkt_dict.get("title", ""),
         "merke": produkt_dict.get("manufacturerName", ""),
@@ -71,6 +71,7 @@ def finn_produkt_liste_info(produkt_dict):
         "nettlager_status": produkt_dict.get("webStockStatus", 3),
         "kategori": produkt_dict.get("categoryName", ""),
         "id": produkt_dict.get("productId", ""),
+        "elguide_id": produkt_dict.get("elguideId", ""),
         "lagring": finne_lagringsplass(produkt_dict.get("title", "")),
         "farge": finne_farge(produkt_dict.get("title", ""))
     }

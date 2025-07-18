@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, url_for
-from mobil_api_request import hent_produkt_liste, finn_produkt_liste_info, hent_CNC_produkt_liste, finn_info_annen_farge_produkt, hent_nettlager_produkt_liste, hent_frontpage
+from mobil_api_request import hent_produkt_liste, finn_produkt_info, hent_CNC_produkt_liste, finn_info_annen_farge_produkt, hent_nettlager_produkt_liste, hent_frontpage
 from verktoy import filtrer_ut_produktnavn, sortere_norske_ord
 from database import hent_alle_butikker, hent_butikk_id
 import sqlite3
@@ -50,7 +50,7 @@ def index():
         antall_produkter = hentet_verdi["antall"]
 
     for produkt in produkt_liste:
-        info = finn_produkt_liste_info(produkt)
+        info = finn_produkt_info(produkt)
         if info["kategori"].lower() == "mobiltelefon":
             info["url"] = url_for("mobiler", produkt=info["id"])
         #print(info)
@@ -80,7 +80,7 @@ def mobiler():
 
     """Hente specs"""
     produkt_info = hent_produkt_liste(produkt_id)["produkter"][0]
-    hoved_produkt = finn_produkt_liste_info(produkt_info)
+    hoved_produkt = finn_produkt_info(produkt_info)
     del produkt_info
 
 
@@ -113,7 +113,7 @@ def mobiler():
     cnc_ider = []
 
     for produkt in cnc_produkter:
-        info = finn_produkt_liste_info(produkt)
+        info = finn_produkt_info(produkt)
         cnc_ider.append(info["id"])
 
     for produkt in produkt_infoer:
