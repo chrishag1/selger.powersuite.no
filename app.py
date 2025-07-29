@@ -1,8 +1,10 @@
+from itertools import zip_longest, chain
+
 from flask import Flask, render_template, request, url_for
-from mobil_api_request import hent_produkt_liste, finn_produkt_info, hent_CNC_produkt_liste, finn_info_annen_farge_produkt, hent_nettlager_produkt_liste, hent_frontpage
+from mobil_api_request import hent_produkt_liste, finn_produkt_info, hent_CNC_produkt_liste, finn_info_annen_farge_produkt, hent_nettlager_produkt_liste, hent_produkt_kategori, hent_produktliste_fra_lager
 from verktoy import filtrer_ut_produktnavn, sortere_norske_ord
 from database import hent_alle_butikker, hent_butikk_id
-import sqlite3
+from kategorier import *
 import math
 
 app = Flask(__name__)
@@ -12,6 +14,10 @@ app = Flask(__name__)
 def index():
     """
     Ting å legge til:
+
+    RePower mobiler, hvis iphone i søkeord, cat 8923
+
+    "Produkter i andre butikker"
 
     filtrer på "merke"
 
@@ -35,23 +41,22 @@ def index():
 
     produkt = request.args.get("produkt_sok", "")
     produkter = []
-    if butikk == "Alle butikker":
-        hentet_verdi = hent_produkt_liste(produkt, start_index=side*36)
-        produkt_liste = hentet_verdi["produkter"]
-        antall_produkter = hentet_verdi["antall"]
-    elif butikk == "Nettbutikk":
-        hentet_verdi = hent_nettlager_produkt_liste(produkt, start_index=side*36)
-        produkt_liste = hentet_verdi["produkter"]
-        antall_produkter = hentet_verdi["antall"]
+
+    hentet_verdi = hent_produktliste_fra_lager(produkt, butikk, start_index=side*36)
+
+    if "repower" in produkt:
+        hentet_repower = hent_produktliste_fra_lager(produkt, butikk, REPOWER_BRUKT_IPHONE, start_index=side * 36)
+        produkt_liste = hentet_repower["produkter"]
+        antall_produkter = int(hentet_repower["antall"])
+
     else:
-        butikk_id = hent_butikk_id(butikk)
-        hentet_verdi = hent_CNC_produkt_liste(produkt, butikk_id, start_index=side*36)
         produkt_liste = hentet_verdi["produkter"]
-        antall_produkter = hentet_verdi["antall"]
+        antall_produkter = int(hentet_verdi["antall"])
 
     for produkt in produkt_liste:
         info = finn_produkt_info(produkt)
-        if info["kategori"].lower() == "mobiltelefon":
+        print(info)
+        if info["kategori"].lower() in ["mobiltelefon", "repower brukt iphone"]:
             info["url"] = url_for("mobiler", produkt=info["id"])
         #print(info)
         produkter.append(info)
@@ -71,7 +76,6 @@ def mobiler():
 
     :return:
     """
-    kategori_nummer = 2015
 
     """Hente opp trykket produkt"""
     produkt_id = request.args.get("produkt")
@@ -79,14 +83,14 @@ def mobiler():
     butikk_id = 9700
 
     """Hente specs"""
-    produkt_info = hent_produkt_liste(produkt_id)["produkter"][0]
+    produkt_kategori = hent_produkt_kategori(produkt_id)
+    produkt_info = hent_produkt_liste(produkt_id, cat=produkt_kategori)["produkter"][0]
     hoved_produkt = finn_produkt_info(produkt_info)
     del produkt_info
 
-
     """Hente samme produkt, men annen lagring"""
     produkt_navn = filtrer_ut_produktnavn(hoved_produkt["navn"])
-    like_produkter = hent_produkt_liste(produkt_navn, kategori_nummer)["produkter"]
+    like_produkter = hent_produkt_liste(produkt_navn, produkt_kategori)["produkter"]
 
     produkt_infoer = []
     ider = []
@@ -106,10 +110,10 @@ def mobiler():
             ider.append(str(info["id"]))
     query = ",".join(ider)
     if butikk == "Alle butikker" or butikk == "Nettbutikk":
-        cnc_produkter = hent_nettlager_produkt_liste(query, kategori_nummer)["produkter"]
+        cnc_produkter = hent_nettlager_produkt_liste(query, produkt_kategori)["produkter"]
     else:
         butikk_id = hent_butikk_id(butikk)
-        cnc_produkter = hent_CNC_produkt_liste(query, butikk_id, kategori_nummer)["produkter"]
+        cnc_produkter = hent_CNC_produkt_liste(query, butikk_id, produkt_kategori)["produkter"]
     cnc_ider = []
 
     for produkt in cnc_produkter:
@@ -145,7 +149,7 @@ def mobiler():
                            butikk_id=butikk_id,
                            valgt_butikk=butikk,
                            alle_butikker=alle_butikker,
-                           kategori_nummer=kategori_nummer,
+                           kategori_nummer=produkt_kategori,
                            hoved_produkt=hoved_produkt,
                            andre_farger=samme_produkt_andre_farger,
                            annen_lagringsplass=sortert_produkter,
@@ -157,32 +161,3 @@ def mobiler():
 
 if __name__ == '__main__':
     app.run()
-
-"""def main():
-    url = "https://backend.pointandplace.com/matched/no/38c0f958-cc72-419c-9cfb-05eddad80a00?sku=3614194"
-    #params = {"ids": "1512986,2669641,2671640,3568859,3614193,3614194,3614195,3614196,3614197,3614399,3615133,3615147,3615150,3615173,3615174,4041796,4042319"}
-
-    svar = requests.get(url)
-    print(svar.content)
-
-if __name__ == '__main__':
-    main()"""
-
-
-"""
-
-to sider:
-moblier
-
-laptop
-
-
-
-#Teknisk
-ved full string: kan hente flere elementer med komma-separator
-
-iphone 16, 3614193 - 3614197
-3 -> 7
-
-categoryId: 2015 -> mobiler
-"""

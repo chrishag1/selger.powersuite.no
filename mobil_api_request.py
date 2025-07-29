@@ -1,7 +1,9 @@
 import requests
+from kategorier import *
+from database import hent_butikk_id
 from verktoy import finne_lagringsplass, finne_farge
 
-def hent_produkt_liste(query, cat=2015, start_index=0):
+def hent_produkt_liste(query, cat=MOBILTELEFON, start_index=0):
     url = f"https://www.power.no/api/v2/productlists"
     params = {
         "size": 36,
@@ -19,7 +21,7 @@ def hent_produkt_liste(query, cat=2015, start_index=0):
     return svar
 
 
-def hent_CNC_produkt_liste(query, butikk_id, cat=2015, start_index=0):
+def hent_CNC_produkt_liste(query, butikk_id, cat=MOBILTELEFON, start_index=0):
     url = f"https://www.power.no/api/v2/productlists"
     params = {
         "size": 36,
@@ -38,7 +40,7 @@ def hent_CNC_produkt_liste(query, butikk_id, cat=2015, start_index=0):
     return svar
 
 
-def hent_nettlager_produkt_liste(query, cat=2015, start_index=0):
+def hent_nettlager_produkt_liste(query, cat=MOBILTELEFON, start_index=0):
     url = f"https://www.power.no/api/v2/productlists"
     params = {
         "size": 36,
@@ -55,6 +57,17 @@ def hent_nettlager_produkt_liste(query, cat=2015, start_index=0):
         "antall": response.json()["totalProductCount"]
     }
     return svar
+
+
+def hent_produktliste_fra_lager(produkt, butikk, kategori=MOBILTELEFON, start_index=0):
+    if butikk == "Alle butikker":
+        return hent_produkt_liste(produkt, kategori, start_index)
+
+    elif butikk == "Nettbutikk":
+        return hent_nettlager_produkt_liste(produkt, kategori, start_index)
+
+    return hent_CNC_produkt_liste(produkt, hent_butikk_id(butikk), kategori, start_index)
+
 
 
 def finn_produkt_info(produkt_dict):
@@ -98,6 +111,17 @@ def hent_frontpage(cat=2015):
     }
     response = requests.get(url, params=params)
     return response.json()["products"]
+
+
+def hent_produkt_kategori(produkt_id):
+    url = "https://www.power.no/api/v2/products"
+    params = {
+        "ids": produkt_id,
+    }
+
+    svar = requests.get(url, params=params).json()[0]
+
+    return svar.get("categoryId")
 
 
 
